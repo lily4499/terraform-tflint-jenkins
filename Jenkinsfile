@@ -37,13 +37,22 @@ pipeline {
         stage('Publish TFLint Report') {
             steps {
                 script {
-                    recordIssues tools: [tflint(pattern: 'tflint-report.json')]
+                    recordIssues(
+                        tools: [TFLint(pattern: 'tflint-report.json')],
+                        blameDisabled: true,
+                        trendChartType: 'TOOLS'
+                    )
                 }
             }
         }
         stage('Initialize Terraform') {
             steps {
                 sh 'terraform init'
+            }
+        }
+         stage('Validate Terraform') {
+            steps {
+                sh 'terraform validate'
             }
         }
         stage('Plan Terraform') {
@@ -70,7 +79,6 @@ pipeline {
         }
     }
     post {
-        
         success {
             script {
                 if (params.ACTION == 'apply') {
@@ -91,4 +99,3 @@ pipeline {
         }
     }
 }
-
