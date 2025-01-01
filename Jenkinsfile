@@ -28,7 +28,7 @@ pipeline {
                         tflint --format json > tflint-report.json
                         '''
                     } catch (Exception e) {
-                        slackSend(channel: '#devops-project', message: "TFLint detected issues in Terraform code!")
+                        slackSend(channel: '#devops-project', color: 'danger', message: "TFLint detected issues in Terraform code!")
                         error "TFLint failed. Please fix the issues before proceeding."
                     }
                 }
@@ -36,13 +36,10 @@ pipeline {
         }
         stage('Publish TFLint Report') {
             steps {
-                script {
-                    recordIssues(
-                        tools: [TFLint(pattern: 'tflint-report.json')],
-                        blameDisabled: true,
-                        trendChartType: 'TOOLS'
-                    )
-                }
+                recordIssues(
+                    tools: [tflint(pattern: 'tflint-report.json')],
+                    trendChartType: 'TOOLS'
+                )
             }
         }
         stage('Initialize Terraform') {
@@ -50,7 +47,7 @@ pipeline {
                 sh 'terraform init'
             }
         }
-         stage('Validate Terraform') {
+        stage('Validate Terraform') {
             steps {
                 sh 'terraform validate'
             }
@@ -82,18 +79,18 @@ pipeline {
         success {
             script {
                 if (params.ACTION == 'apply') {
-                    slackSend(channel: '#devops-project', message: "Terraform apply executed successfully!")
+                    slackSend(channel: '#devops-project', color: 'good', message: "Terraform apply executed successfully!")
                 } else if (params.ACTION == 'destroy') {
-                    slackSend(channel: '#devops-project', message: "Terraform destroy executed successfully!")
+                    slackSend(channel: '#devops-project', color: 'good', message: "Terraform destroy executed successfully!")
                 }
             }
         }
         failure {
             script {
                 if (params.ACTION == 'apply') {
-                    slackSend(channel: '#devops-project', message: "Terraform apply failed!")
+                    slackSend(channel: '#devops-project', color: 'danger', message: "Terraform apply failed!")
                 } else if (params.ACTION == 'destroy') {
-                    slackSend(channel: '#devops-project', message: "Terraform destroy failed!")
+                    slackSend(channel: '#devops-project', color: 'danger', message: "Terraform destroy failed!")
                 }
             }
         }
