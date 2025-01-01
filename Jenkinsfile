@@ -70,10 +70,7 @@ pipeline {
         }
     }
     post {
-        always {
-            echo 'Cleaning up workspace...'
-            deleteDir()
-        }
+        
         success {
             script {
                 if (params.ACTION == 'apply') {
