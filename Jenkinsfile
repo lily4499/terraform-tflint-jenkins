@@ -36,10 +36,16 @@ pipeline {
         }
         stage('Publish TFLint Report') {
             steps {
+                // Use the genericJson parser or archive artifacts as an alternative
                 recordIssues(
-                    tools: [tflint(pattern: 'tflint-report.json')],
+                    tools: [genericJson(
+                        pattern: 'tflint-report.json',
+                        reportSchema: 'TFLint'
+                    )],
                     trendChartType: 'TOOLS'
                 )
+                // Alternatively, archive the report
+                // archiveArtifacts artifacts: 'tflint-report.json', fingerprint: true
             }
         }
         stage('Initialize Terraform') {
